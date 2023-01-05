@@ -16,13 +16,11 @@ class MoviesRepository {
         val nowPlayingMovies = moviesAPIService.getNowPlaying().results
 
         _moviesStateFlow.value = MoviesState(
-            isLoading = false,
             movies = nowPlayingMovies
         )
     }
 
     data class MoviesState(
-        val isLoading: Boolean = false,
         val movies: List<Movie> = emptyList(),
         val error: String = "",
         val favorites: List<Movie> = emptyList()
