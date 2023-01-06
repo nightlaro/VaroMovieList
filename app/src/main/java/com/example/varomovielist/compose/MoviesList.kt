@@ -7,7 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
+import com.example.varomovielist.R
 import com.example.varomovielist.models.Movie
 
 @Composable
@@ -27,7 +28,7 @@ fun MoviesList(
         onLastItem()
     }
     LazyColumn(
-        contentPadding = PaddingValues(bottom = 58.dp),
+        contentPadding = PaddingValues(bottom = dimensionResource(R.dimen.list_padding)),
         state = lazyListState
     ) {
         items(movies.size) { index ->

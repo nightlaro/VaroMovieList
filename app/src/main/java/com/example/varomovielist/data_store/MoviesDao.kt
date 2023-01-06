@@ -12,6 +12,9 @@ interface MoviesDao {
     @Query("SELECT * FROM movieentity")
     fun getAllCachedMovies(): List<MovieEntity>
 
+    @Query("SELECT * FROM movieentity WHERE id = :id")
+    fun getCachedMovieById(id: Int): MovieEntity?
+
     @Query("SELECT * FROM favoritemovieentity")
     fun getAllCachedFavoriteMovies(): List<FavoriteMovieEntity>
 

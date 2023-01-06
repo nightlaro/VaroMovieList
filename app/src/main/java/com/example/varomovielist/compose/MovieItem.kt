@@ -14,8 +14,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import coil.compose.AsyncImage
+import com.example.varomovielist.R
 import com.example.varomovielist.models.Movie
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -33,10 +35,10 @@ fun MovieItem(movie: Movie, isFavoriteItem: Boolean = false, onCardClicked: (Mov
         animationSpec = tween(durationMillis = 500)
     )
     Card(
-        modifier = Modifier.padding(12.dp),
-        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier.padding(dimensionResource(R.dimen.movie_card_padding)),
+        shape = RoundedCornerShape(dimensionResource(R.dimen.movie_card_round_radius)),
         backgroundColor = animatedColor.value,
-        elevation = 8.dp,
+        elevation = dimensionResource(R.dimen.movie_card_elevation),
         onClick = {
             if (!isFavoriteItem) {
                 currentBackgroundColor = Color.Green
@@ -45,7 +47,10 @@ fun MovieItem(movie: Movie, isFavoriteItem: Boolean = false, onCardClicked: (Mov
         }
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+            modifier = Modifier.padding(
+                horizontal = dimensionResource(R.dimen.movie_card_content_horizontal_padding),
+                vertical = dimensionResource(R.dimen.movie_card_content_vertical_padding)
+            ),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -53,13 +58,13 @@ fun MovieItem(movie: Movie, isFavoriteItem: Boolean = false, onCardClicked: (Mov
             AsyncImage(
                 model = posterURL,
                 contentDescription = movie.title,
-                modifier = Modifier.size(200.dp)
+                modifier = Modifier.size(dimensionResource(R.dimen.movie_poster_size))
             )
             Text(text = movie.title)
-            Text(text = "Release date: ${movie.release_date}")
-            Text(text = "Rating: ${movie.vote_average}")
-            Text(text = "Popularity: ${movie.popularity}")
-            Text(text = "Overview:")
+            Text(text = "${stringResource(R.string.release_date)}${movie.release_date}")
+            Text(text = "${stringResource(R.string.rating)}${movie.vote_average}")
+            Text(text = "${stringResource(R.string.popularity)}${movie.popularity}")
+            Text(text = stringResource(R.string.overview))
             Text(text = movie.overview)
         }
     }

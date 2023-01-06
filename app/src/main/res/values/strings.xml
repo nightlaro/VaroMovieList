@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">VaroMovieList</string>
+    <string name="release_date">Release date</string>
+    <string name="rating">Rating: </string>
+    <string name="popularity">Popularity: </string>
+    <string name="overview">Overview: </string>
+    <string name="home">Home</string>
+    <string name="favorites">Favorites</string>
 </resources>

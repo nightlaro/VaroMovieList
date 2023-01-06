@@ -72,7 +72,9 @@ class MoviesRepository(private val moviesDao: MoviesDao) {
         scope.launch {
             withContext(Dispatchers.IO) {
                 movies.forEach { movie ->
-                    moviesDao.insertMovie(movie.toMovieEntity())
+                    if (moviesDao.getCachedMovieById(movie.id) == null) {
+                        moviesDao.insertMovie(movie.toMovieEntity())
+                    }
                 }
             }
         }
