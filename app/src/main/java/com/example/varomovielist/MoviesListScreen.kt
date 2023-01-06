@@ -13,13 +13,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.varomovielist.models.Movie
 
 @Composable
-fun MoviesListScreen() {
-    val viewModel: MainActivityViewmodel = viewModel()
+fun MoviesListScreen(viewModel: MainActivityViewmodel) {
     val state by viewModel.stateFlow.collectAsState()
 
     Column(
@@ -64,7 +62,12 @@ fun MoviesListScreen() {
 }
 
 @Composable
-fun MoviesList(movies: List<Movie>, isFavoriteList: Boolean = false, onFavorite: (Movie) -> Unit, onLastItem: () -> Unit = {}) {
+fun MoviesList(
+    movies: List<Movie>,
+    isFavoriteList: Boolean = false,
+    onFavorite: (Movie) -> Unit,
+    onLastItem: () -> Unit = {}
+) {
     val lazyListState = rememberLazyListState()
     val lastItemVisible by remember {
         derivedStateOf {
@@ -72,14 +75,18 @@ fun MoviesList(movies: List<Movie>, isFavoriteList: Boolean = false, onFavorite:
         }
     }
     if (lastItemVisible) {
-       onLastItem()
+        onLastItem()
     }
     LazyColumn(
         contentPadding = PaddingValues(bottom = 58.dp),
         state = lazyListState
     ) {
         items(movies.size) { index ->
-            MovieItem(movie = movies[index], isFavoriteItem = isFavoriteList, onCardClicked = onFavorite)
+            MovieItem(
+                movie = movies[index],
+                isFavoriteItem = isFavoriteList,
+                onCardClicked = onFavorite
+            )
         }
     }
 }
@@ -104,10 +111,8 @@ fun MovieItem(movie: Movie, isFavoriteItem: Boolean = false, onCardClicked: (Mov
         backgroundColor = animatedColor.value,
         elevation = 8.dp,
         onClick = {
-            currentBackgroundColor = if (isFavoriteItem) {
-                Color.LightGray
-            } else {
-                Color.Green
+            if (!isFavoriteItem) {
+                currentBackgroundColor = Color.Green
             }
             onCardClicked(movie)
         }

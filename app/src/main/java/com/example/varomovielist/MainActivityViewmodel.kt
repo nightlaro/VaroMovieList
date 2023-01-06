@@ -1,20 +1,26 @@
 package com.example.varomovielist
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.varomovielist.data_store.MoviesLocalDatabase
 import com.example.varomovielist.models.Movie
 import com.example.varomovielist.repository.MoviesRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class MainActivityViewmodel : ViewModel() {
+class MainActivityViewmodel(context: Context) : ViewModel() {
     private val intentSharedFlow = MutableSharedFlow<Intent>()
     private val _stateFlow = MutableStateFlow(State())
     val stateFlow: StateFlow<State>
         get() = _stateFlow.asStateFlow()
 
-    private val moviesRepository = MoviesRepository()
+    private val movieDB = MoviesLocalDatabase.getDatabase(context)
+
+    private val moviesDao = movieDB.moviesDao()
+    private val moviesRepository = MoviesRepository(moviesDao)
+
     init {
         intentSharedFlow.onEach {
             val currentState = stateFlow.value
@@ -65,13 +71,15 @@ class MainActivityViewmodel : ViewModel() {
                 )
             }
             is Intent.AddFavoriteMovie -> {
-                // save favorite movie locally
+                if (!moviesRepository.moviesStateFlow.value.favorites.any { it.id == intent.movie.id }) {
+                    moviesRepository.saveFavoriteToDB(intent.movie)
+                }
                 currentState.copy(
                     favorites = (currentState.favorites + intent.movie).distinctBy { it.id }
                 )
             }
             is Intent.RemoveFavoriteMovie -> {
-                // remove favorite movie locally
+                moviesRepository.removeFavoriteFromDB(intent.movie)
                 val favoriteMovies = currentState.favorites - intent.movie
                 currentState.copy(
                     favorites = favoriteMovies
