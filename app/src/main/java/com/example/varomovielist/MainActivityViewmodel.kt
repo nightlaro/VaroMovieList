@@ -36,6 +36,7 @@ class MainActivityViewmodel : ViewModel() {
 
     data class State(
         val isLoading: Boolean = true,
+        val shouldShowFavorites: Boolean = false,
         val movies: List<Movie> = emptyList(),
         val error: String = "",
         val favorites: List<Movie> = emptyList()
