@@ -1,6 +1,5 @@
 package com.example.varomovielist.repository
 
-import android.util.Log
 import com.example.varomovielist.models.Movie
 import com.example.varomovielist.network.MoviesAPIClient
 import kotlinx.coroutines.*
@@ -16,9 +15,13 @@ class MoviesRepository {
         get() = _moviesStateFlow.asStateFlow()
 
     init {
+        loadNowPlayingMovieByPage()
+    }
+
+    fun loadNowPlayingMovieByPage(page: Int = 1) {
         scope.launch {
             withContext(Dispatchers.IO) {
-                val nowPlaying = moviesAPIService.getNowPlaying().execute()
+                val nowPlaying = moviesAPIService.getNowPlaying(page).execute()
                 if (nowPlaying.isSuccessful) {
                     val movies = nowPlaying.body()?.results ?: emptyList()
                     _moviesStateFlow.value = _moviesStateFlow.value.copy(movies = movies)

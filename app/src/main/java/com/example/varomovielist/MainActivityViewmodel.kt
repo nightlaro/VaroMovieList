@@ -42,8 +42,9 @@ class MainActivityViewmodel : ViewModel() {
 
         return when (intent) {
             is Intent.UpdateMovieList -> {
+                val movies = (currentState.movies + intent.movies).distinctBy { it.id }
                 currentState.copy(
-                    movies = intent.movies,
+                    movies = movies,
                     isLoading = false
                 )
             }
@@ -76,10 +77,17 @@ class MainActivityViewmodel : ViewModel() {
                     favorites = favoriteMovies
                 )
             }
+            is Intent.LoadNextPage -> {
+                moviesRepository.loadNowPlayingMovieByPage(intent.page)
+                currentState.copy(
+                    currentPage = intent.page,
+                )
+            }
         }
     }
 
     data class State(
+        val currentPage: Int = 1,
         val isLoading: Boolean = true,
         val shouldShowFavorites: Boolean = false,
         val movies: List<Movie> = emptyList(),
@@ -94,5 +102,6 @@ class MainActivityViewmodel : ViewModel() {
         object ShowHome : Intent()
         data class AddFavoriteMovie(val movie: Movie) : Intent()
         data class RemoveFavoriteMovie(val movie: Movie) : Intent()
+        data class LoadNextPage(val page: Int) : Intent()
     }
 }

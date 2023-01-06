@@ -5,6 +5,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -27,17 +28,27 @@ fun MoviesListScreen() {
         verticalArrangement = Arrangement.Center
     ) {
         if (state.isLoading) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(
+                modifier = Modifier.size(50.dp),
+                color = Color.Magenta,
+                strokeWidth = 10.dp
+            )
         } else {
             AnimatedVisibility(visible = state.shouldShowFavorites) {
-                MoviesList(movies = state.favorites) {
+                MoviesList(movies = state.favorites, isFavoriteList = true, onFavorite = {
                     viewModel.send(MainActivityViewmodel.Intent.RemoveFavoriteMovie(it))
-                }
+                })
             }
             AnimatedVisibility(visible = !state.shouldShowFavorites) {
-                MoviesList(movies = state.movies) {
-                    viewModel.send(MainActivityViewmodel.Intent.AddFavoriteMovie(it))
-                }
+                MoviesList(
+                    movies = state.movies,
+                    onFavorite = {
+                        viewModel.send(MainActivityViewmodel.Intent.AddFavoriteMovie(it))
+                    },
+                    onLastItem = {
+                        viewModel.send(MainActivityViewmodel.Intent.LoadNextPage(state.currentPage + 1))
+                    }
+                )
             }
 
             NavigationBar(
@@ -53,19 +64,35 @@ fun MoviesListScreen() {
 }
 
 @Composable
-fun MoviesList(movies: List<Movie>, onFavorite: (Movie) -> Unit) {
-    LazyColumn {
+fun MoviesList(movies: List<Movie>, isFavoriteList: Boolean = false, onFavorite: (Movie) -> Unit, onLastItem: () -> Unit = {}) {
+    val lazyListState = rememberLazyListState()
+    val lastItemVisible by remember {
+        derivedStateOf {
+            lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == movies.lastIndex
+        }
+    }
+    if (lastItemVisible) {
+       onLastItem()
+    }
+    LazyColumn(
+        contentPadding = PaddingValues(bottom = 58.dp),
+        state = lazyListState
+    ) {
         items(movies.size) { index ->
-            MovieItem(movie = movies[index], onCardClicked = onFavorite)
+            MovieItem(movie = movies[index], isFavoriteItem = isFavoriteList, onCardClicked = onFavorite)
         }
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MovieItem(movie: Movie, onCardClicked: (Movie) -> Unit) {
+fun MovieItem(movie: Movie, isFavoriteItem: Boolean = false, onCardClicked: (Movie) -> Unit) {
     var currentBackgroundColor by remember {
-        mutableStateOf(Color.LightGray)
+        if (isFavoriteItem) {
+            mutableStateOf(Color.Green)
+        } else {
+            mutableStateOf(Color.LightGray)
+        }
     }
     val animatedColor = animateColorAsState(
         targetValue = currentBackgroundColor,
@@ -77,7 +104,11 @@ fun MovieItem(movie: Movie, onCardClicked: (Movie) -> Unit) {
         backgroundColor = animatedColor.value,
         elevation = 8.dp,
         onClick = {
-            currentBackgroundColor = Color.Green
+            currentBackgroundColor = if (isFavoriteItem) {
+                Color.LightGray
+            } else {
+                Color.Green
+            }
             onCardClicked(movie)
         }
     ) {
