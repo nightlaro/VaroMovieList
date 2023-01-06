@@ -1,5 +1,6 @@
 package com.example.varomovielist
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
@@ -20,22 +21,25 @@ fun MoviesListScreen() {
     val viewModel: MainActivityViewmodel = viewModel()
     val state by viewModel.stateFlow.collectAsState()
 
-    if (state.isLoading) {
-        CircularProgressIndicator()
-    } else {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            if (state.shouldShowFavorites) {
-                MoviesList(modifier = Modifier.fillMaxSize(), movies = state.favorites) {
+    Column(
+        modifier = Modifier.systemBarsPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        if (state.isLoading) {
+            CircularProgressIndicator()
+        } else {
+            AnimatedVisibility(visible = state.shouldShowFavorites) {
+                MoviesList(movies = state.favorites) {
                     viewModel.send(MainActivityViewmodel.Intent.RemoveFavoriteMovie(it))
                 }
-            } else {
-                MoviesList(modifier = Modifier.fillMaxSize(), movies = state.movies) {
+            }
+            AnimatedVisibility(visible = !state.shouldShowFavorites) {
+                MoviesList(movies = state.movies) {
                     viewModel.send(MainActivityViewmodel.Intent.AddFavoriteMovie(it))
                 }
             }
+
             NavigationBar(
                 onFavoriteClicked = {
                     viewModel.send(MainActivityViewmodel.Intent.ShowFavorites)
@@ -49,8 +53,8 @@ fun MoviesListScreen() {
 }
 
 @Composable
-fun MoviesList(modifier: Modifier, movies: List<Movie>, onFavorite: (Movie) -> Unit) {
-    LazyColumn() {
+fun MoviesList(movies: List<Movie>, onFavorite: (Movie) -> Unit) {
+    LazyColumn {
         items(movies.size) { index ->
             MovieItem(movie = movies[index], onCardClicked = onFavorite)
         }
@@ -103,7 +107,7 @@ fun NavigationBar(onFavoriteClicked: () -> Unit, onHomeClicked: () -> Unit) {
     BottomNavigation(
         modifier = Modifier
             .fillMaxWidth()
-            .requiredHeight(200.dp),
+            .requiredHeight(100.dp),
         backgroundColor = MaterialTheme.colors.primary,
         contentColor = MaterialTheme.colors.onSecondary,
         elevation = 12.dp
