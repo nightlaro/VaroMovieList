@@ -1,6 +1,9 @@
 package com.example.varomovielist
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
@@ -32,12 +35,30 @@ fun MoviesListScreen(viewModel: MainActivityViewmodel) {
                 strokeWidth = 10.dp
             )
         } else {
-            AnimatedVisibility(visible = state.shouldShowFavorites) {
+            AnimatedVisibility(
+                visible = state.shouldShowFavorites,
+                enter = slideInHorizontally(
+                    animationSpec = tween(delayMillis = 250),
+                    initialOffsetX = { it }
+                ),
+                exit = slideOutHorizontally(
+                    targetOffsetX = { -it }
+                )
+            ) {
                 MoviesList(movies = state.favorites, isFavoriteList = true, onFavorite = {
                     viewModel.send(MainActivityViewmodel.Intent.RemoveFavoriteMovie(it))
                 })
             }
-            AnimatedVisibility(visible = !state.shouldShowFavorites) {
+            AnimatedVisibility(
+                visible = !state.shouldShowFavorites,
+                enter = slideInHorizontally(
+                    animationSpec = tween(delayMillis = 250),
+                    initialOffsetX = { it }
+                ),
+                exit = slideOutHorizontally(
+                    targetOffsetX = { -it }
+                )
+            ) {
                 MoviesList(
                     movies = state.movies,
                     onFavorite = {
